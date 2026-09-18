@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
     const requestBody = {
       systemInstruction: {
-        parts: [{ text: 'أنت مسؤول خدمات وإدارات الحملات الإعلانية لدى "Shushan للإعلانات الممولة". أجب بأسلوب احترافي، واضح ومختصر. حافظ على سياق الحوار وتذكر ما تم قوله في نفس المحادثة.' }]
+        parts: [{ text: 'أنت مسؤول خدمات وإدارات الحملات الإعلانية لدى "Shushan للإعلانات الممولة". أجب بأسلوب احترافي، واضح ومختصر.' }]
       },
       contents: formattedContents
     };
