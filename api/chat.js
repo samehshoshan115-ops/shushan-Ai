@@ -19,7 +19,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ reply: 'خطأ: لم يتم ضبط مفتاح الـ API في Vercel.' });
     }
 
-    // تنسيق سجل المحادثة
     const formattedContents = [];
     if (messages && Array.isArray(messages)) {
       messages.forEach(msg => {
@@ -30,24 +29,25 @@ export default async function handler(req, res) {
       });
     }
 
-    // تجهيز الطلب مع تعليمات النظام المعتمدة رسمياً
     const requestBody = {
       systemInstruction: {
-        parts: [{ text: 'أنت مسؤول خدمات وإدارات الحملات الإعلانية لدى "Shushan للإعلانات الممولة". أجب بأسلوب احترافي، واضح ومختصر. حافظ على سياق الحوار وتذكر ما تم قوله في نفس المحادثة. إذا سألك العميل عن معلومات عامة أجب بأسلوب مفيد وواضح.' }]
+        parts: [{ text: 'أنت مسؤول خدمات وإدارات الحملات الإعلانية لدى "Shushan للإعلانات الممولة". أجب بأسلوب احترافي، واضح ومختصر. حافظ على سياق الحوار وتذكر ما تم قوله في نفس المحادثة.' }]
       },
       contents: formattedContents
     };
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
       body: JSON.stringify(requestBody)
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      // إرجاع رسالة الخطأ القادمة من جوجل بدقة لتشخيصها
       const errorMessage = data.error?.message || 'حدث خطأ أثناء الاتصال بمزود الذكاء الاصطناعي.';
       return res.status(500).json({ reply: `خطأ API: ${errorMessage}` });
     }
