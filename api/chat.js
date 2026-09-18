@@ -30,17 +30,18 @@ export default async function handler(req, res) {
     }
 
     const requestBody = {
-      systemInstruction: {
-        parts: [{ text: 'أنت مسؤول خدمات وإدارات الحملات الإعلانية لدى "Shushan للإعلانات الممولة". أجب بأسلوب احترافي، واضح ومختصر.' }]
+      system_instruction: {
+        parts: [{ text: 'أنت المساعد الذكي لشركة شوشان للتسويق والتجارة (shushanmarketing.com). أجب عن جميع استفسارات الزائر بأسلوب متوازن ومباشر دون إطالة ولا اختصار منقوص. تجيب عن الأسئلة العامة والخاصة، وعند وجود طلب خدمة مباشرة أو تسعير وجه الزائر للتواصل عبر الواتساب.' }]
       },
+      generationConfig: { maxOutputTokens: 800 },
       contents: formattedContents
     };
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
+    // التصحيح الأساسي: تمرير المفتاح بداخل الرابط المباشر
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestBody)
     });
