@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shushan للإعلانات الممولة - مساعد AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .chat-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 800px;
+      width: 100%;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .chat-header h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    .chat-header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .message {
+      display: flex;
+      gap: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .message.user {
+      justify-content: flex-end;
+    }
+    .message-content {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.5;
+    }
+    .message.user .message-content {
+      background: #667eea;
+      color: white;
+    }
+    .message.assistant .message-content {
+      background: #f1f3f4;
+      color: #333;
+    }
+    .chat-input-area {
+      padding: 20px;
+      background: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
+    }
+    .input-wrapper {
+      display: flex;
+      gap: 10px;
+    }
+    #user-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    #user-input:focus {
+      border-color: #667eea;
+    }
+    #send-button {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #send-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    #send-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .loading {
+      display: flex;
+      gap: 5px;
+      padding: 12px 16px;
+    }
+    .loading span {
+      width: 8px;
+      height: 8px;
+      background: #667eea;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .loading span:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    .loading span:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(0);
+      }
+      40% {
+        transform: scale(1);
+      }
+    }
+  </style>
+  <!-- Vercel Speed Insights -->
+  <script>
+    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>🎯 Shushan للإعلانات الممولة</h1>
+      <p>مساعدك الذكي لإدارة الحملات الإعلانية</p>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="message assistant">
+        <div class="message-content">
+          مرحباً بك! أنا مسؤول خدمات وإدارات الحملات الإعلانية في Shushan للإعلانات الممولة. كيف يمكنني مساعدتك اليوم؟
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          id="user-input" 
+          placeholder="اكتب رسالتك هنا..."
+          autocomplete="off"
+        />
+        <button id="send-button">إرسال</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const messagesContainer = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const conversationHistory = [];
+
+    function addMessage(role, content) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${role}`;
+      
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.textContent = content;
+      
+      messageDiv.appendChild(contentDiv);
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showLoading() {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'message assistant';
+      loadingDiv.id = 'loading-indicator';
+      
+      const loadingContent = document.createElement('div');
+      loadingContent.className = 'loading';
+      loadingContent.innerHTML = '<span></span><span></span><span></span>';
+      
+      loadingDiv.appendChild(loadingContent);
+      messagesContainer.appendChild(loadingDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function removeLoading() {
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+        loadingIndicator.remove();
+      }
+    }
+
+    async function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage('user', message);
+      conversationHistory.push({ role: 'user', content: message });
+      userInput.value = '';
+      sendButton.disabled = true;
+      showLoading();
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messages: conversationHistory
+          })
+        });
+
+        const data = await response.json();
+        removeLoading();
+
+        if (data.reply) {
+          addMessage('assistant', data.reply);
+          conversationHistory.push({ role: 'assistant', content: data.reply });
+        } else {
+          addMessage('assistant', 'عذراً، حدث خطأ في الاتصال.');
+        }
+      } catch (error) {
+        removeLoading();
+        addMessage('assistant', 'عذراً، حدث خطأ في الاتصال بالخادم.');
+        console.error('Error:', error);
+      } finally {
+        sendButton.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Focus input on load
+    userInput.focus();
+  </script>
+</body>
+</html>

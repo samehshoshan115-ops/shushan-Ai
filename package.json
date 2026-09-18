@@ -1,0 +1,17 @@
+{
+  "name": "shushan-ai",
+  "version": "1.0.0",
+  "description": "Shushan AI Chat Application",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'",
+    "lint": "echo 'No linter configured'"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.1.0"
+  },
+  "devDependencies": {},
+  "keywords": ["vercel", "ai", "chat"],
+  "author": "",
+  "license": "MIT"
+}
