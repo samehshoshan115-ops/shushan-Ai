@@ -1,4 +1,5 @@
 export default async function handler(req, res) {
+  // إعدادات الهيدر للسماح بالاتصال من موقعك
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -10,8 +11,9 @@ export default async function handler(req, res) {
     const { messages } = req.body;
     const apiKey = process.env.GROQ_API_KEY;
 
+    // فحص وجود المفتاح
     if (!apiKey) {
-      return res.status(500).json({ reply: 'خطأ: لم يتم ضبط مفتاح GROQ_API_KEY في Vercel.' });
+      return res.status(200).json({ reply: 'تنبيه: مفتاح GROQ_API_KEY غير مضاف أو غير مقروء في Vercel.' });
     }
 
     const userMessage = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
@@ -19,7 +21,7 @@ export default async function handler(req, res) {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiKey.trim()}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -34,13 +36,13 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(500).json({ reply: `خطأ API: ${data.error?.message || 'خطأ غير معروف'}` });
+      return res.status(200).json({ reply: `خطأ من Groq: ${data.error?.message || 'تعذر الاتصال بالمزود.'}` });
     }
 
     const replyText = data.choices?.[0]?.message?.content || 'لم يتم استلام رد.';
     return res.status(200).json({ reply: replyText });
 
   } catch (error) {
-    return res.status(500).json({ reply: `حدث خطأ داخلي: ${error.message}` });
+    return res.status(200).json({ reply: `حدث خطأ في الخادم الداخلي: ${error.message}` });
   }
 }
